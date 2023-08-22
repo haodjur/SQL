@@ -1,0 +1,29 @@
+/** Favorite Books: 
+Normal People (4)
+People We Meet on Vacation (3)
+The Kite Runner (5)
+The Book Thief (5)
+Crying in H Mart (5)
+Everything I Know About Love (4)
+A New Earth (5)
+What My Mother and I Don't Talk About (5)
+Minor Feelings (4)
+We Were Liars (3)
+Just Mercy (5)
+**/
+
+CREATE TABLE favoritebooks (id INTEGER PRIMARY KEY, title TEXT, rating INTEGER);
+
+INSERT INTO favoritebooks VALUES (1, "Normal People", 4);
+INSERT INTO favoritebooks VALUES (2, "People We Meet on Vacation", 3);
+INSERT INTO favoritebooks VALUES (3, "The Kite Runner", 5);
+INSERT INTO favoritebooks VALUES (4, "The Book Thief", 5);
+INSERT INTO favoritebooks VALUES (5, "Crying in H Mart", 5);
+INSERT INTO favoritebooks VALUES (6, "Everything I know About Love", 4);
+INSERT INTO favoritebooks VALUES (7, "A New Earth", 5);
+INSERT INTO favoritebooks VALUES (8, "What My Mother and I Don't Talk About", 5);
+INSERT INTO favoritebooks VALUES (9, "Minor Feelings", 4);
+INSERT INTO favoritebooks VALUES (10, "We Were Liars", 3);
+INSERT INTO favoritebooks VALUES (11, "Just Mercy", 5);
+
+SELECT * FROM favoritebooks;
