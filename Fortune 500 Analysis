@@ -79,9 +79,9 @@ HAVING revenue>=350;
 # Categorized the maternity leave into three levels: below average, average and above average
 SELECT company_name,
 CASE
-	WHEN maternity_leave_weeks>=12 THEN "Above average"
-    WHEN maternity_leave_weeks>=8 THEN "Average"
-    ELSE "Below Average"
+WHEN maternity_leave_weeks>=12 THEN "Above average"
+WHEN maternity_leave_weeks>=8 THEN "Average"
+ELSE "Below Average"
 END AS average_maternity_leave
 FROM fortune_companies
 WHERE industry="Retail";
