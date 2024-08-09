@@ -1,0 +1,47 @@
+# For this project, I downloaded a Spotify dataset from Kaggle. 
+# I created a table for the Spotify date (below) and added data into the table. 
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness decimal(8,7) NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL )
+
+# Some questions I answered using the following SQL about the Spotify dataset. 
+
+# What is the average danceability by artist and track? 
+SELECT avg(danceability), artist_name, track_name
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name;
+
+# Who are the top 10 artists based on popularity? 
+SELECT artist_name, popularity
+FROM BIT_DB.Spotifydata
+ORDER BY popularity desc 
+lIMIT 10;
+
+# What artist released the longest song? 
+SELECT distinct artist_name, duration_ms
+FROM BIT_DB.Spotifydata
+ORDER BY duration_ms desc
+LIMIT 1;
+
+# What are the 5 least popular songs? 
+SELECT track_name, popularity
+FROM BIT_DB.Spotifydata
+ORDER BY popularity ASC
+LIMIT 5; 
