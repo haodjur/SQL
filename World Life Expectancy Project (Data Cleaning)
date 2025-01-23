@@ -1,0 +1,118 @@
+# World Life Expectancy Project (Data Cleaning)
+
+# ** Don't use raw data, use backup table
+
+SELECT * FROM world_life_expectancy;
+
+# Look for any duplicates in the dataset
+# Each country should only have one row for each year.. so let's see if there's a duplicate of country and year
+
+# Identify duplicates
+SELECT country, year, CONCAT(country,year), COUNT(CONCAT(country,year))
+FROM world_life_expectancy
+GROUP BY country, year, CONCAT(country,year)
+HAVING COUNT(CONCAT(country,year)) > 1;
+
+# Find row ID with duplicates and give them a row number
+SELECT Row_ID, CONCAT(country,year),
+ROW_NUMBER() OVER(PARTITION BY CONCAT(country,year) ORDER BY CONCAT(country,year)) AS row_num
+FROM world_life_expectancy;
+
+# Use above query as a subquery to filter the duplicates
+SELECT *
+FROM (
+	SELECT Row_ID, CONCAT(country,year),
+	ROW_NUMBER() OVER(PARTITION BY CONCAT(country,year) ORDER BY CONCAT(country,year)) AS row_num
+	FROM world_life_expectancy 
+) as row_table
+WHERE row_num > 1
+;
+
+# Delete row ID that are duplicates
+DELETE FROM world_life_expectancy
+WHERE 
+	Row_ID IN (
+	SELECT Row_ID
+FROM (
+	SELECT Row_ID, CONCAT(country,year),
+	ROW_NUMBER() OVER(PARTITION BY CONCAT(country,year) ORDER BY CONCAT(country,year)) AS row_num
+	FROM world_life_expectancy 
+) as row_table
+WHERE row_num > 1
+);
+
+# Look for blank and null values
+# Looking at the blank values in the Status column
+# Rows with blank Status values
+SELECT *
+FROM world_life_expectancy
+WHERE Status = '';
+
+# Identify countries that have a 'Developing' status
+SELECT DISTINCT(Country)
+FROM world_life_expectancy
+WHERE Status = 'Developing';
+
+# This update does not work...
+UPDATE world_life_expectancy
+SET Status = 'Developing'
+WHERE Country IN (SELECT DISTINCT(Country)
+				FROM world_life_expectancy
+				WHERE Status = 'Developing');
+
+# Update the blank cells to developing
+UPDATE world_life_expectancy t1
+JOIN world_life_expectancy t2
+	ON t1.country = t2.country
+SET t1.STATUS = 'Developing'
+WHERE t1.Status = ''
+AND t2.Status <> ''
+AND t2.Status = 'Developing';
+
+# Update the blank cells to developed
+UPDATE world_life_expectancy t1
+JOIN world_life_expectancy t2
+	ON t1.country = t2.country
+SET t1.STATUS = 'Developed'
+WHERE t1.Status = ''
+AND t2.Status <> ''
+AND t2.Status = 'Developed';
+
+# Looking at blank values in the Life expectancy column
+SELECT * 
+FROM world_life_expectancy
+WHERE `Life expectancy` = '';
+
+# The life expectancy values go up every year, so we can find the avg number by looking the the year after and prior to populate the blank cells
+SELECT Country, year, `Life expectancy` 
+FROM world_life_expectancy;
+
+# Use joins to look at the blank life expectancy cells, and the life expectancy cells for the year prior and the year after
+SELECT t1.Country, t1.Year, t1.`Life expectancy`,
+ t2.Country, t2.Year, t2.`Life expectancy`,
+ t3.Country, t3.Year, t3.`Life expectancy`,
+ ROUND((t2.`Life expectancy`+t3.`Life expectancy`)/2,1)
+FROM world_life_expectancy t1
+JOIN world_life_expectancy t2
+	ON t1.Country = t2.Country
+    AND t1.Year = t2.Year -1
+JOIN world_life_expectancy t3
+	ON t1.Country = t3.Country
+    AND t1.Year = t3.Year +1
+WHERE t1.`Life expectancy` = ''
+;
+
+# Update the blank values to the average life expectancy values
+UPDATE world_life_expectancy t1
+JOIN world_life_expectancy t2
+	ON t1.Country = t2.Country
+    AND t1.Year = t2.Year -1
+JOIN world_life_expectancy t3
+	ON t1.Country = t3.Country
+    AND t1.Year = t3.Year +1
+SET t1.`Life expectancy` = ROUND((t2.`Life expectancy`+t3.`Life expectancy`)/2,1)
+WHERE t1.`Life expectancy` = '';
+
+
+
+
