@@ -1,0 +1,64 @@
+# World Life Expectancy Project (Exploratory Data Analysis)
+
+SELECT *
+FROM world_life_expectancy; 
+
+# Find out how each country's life expectancy has increased over the past 15 years..
+SELECT Country,
+MIN(`Life expectancy`),
+MAX(`Life expectancy`),
+ROUND(MAX(`Life expectancy`) - MIN(`Life expectancy`),1) AS life_increase_15_years
+FROM world_life_expectancy
+GROUP BY Country
+HAVING MIN(`Life expectancy`) <> 0 AND MAX(`Life expectancy`) <> 0
+ORDER BY life_increase_15_years DESC; 
+
+# Look at life expectancy for each year
+SELECT Year, ROUND(AVG(`Life expectancy`),2) 
+FROM world_life_expectancy
+WHERE `Life expectancy` <> 0 
+GROUP BY Year
+ORDER BY Year DESC;
+
+ # Find a correlation between country, life expectancy, and gdp
+SELECT Country, ROUND(AVG(`Life expectancy`),1) AS life_exp, ROUND(AVG(gdp),1) AS GDP
+FROM world_life_expectancy
+GROUP BY Country
+HAVING life_exp > 0 AND GDP > 0
+ORDER BY GDP; 
+
+# What country has a high GDP and a high life expectancy by using a case statement and vice versa
+SELECT 
+SUM(CASE WHEN GDP >= 1500 THEN 1 ELSE 0 END) AS high_gdp_count,
+AVG(CASE WHEN GDP >= 1500 THEN `Life expectancy` ELSE NULL END) AS high_GDP_life_exp,
+SUM(CASE WHEN GDP <= 1500 THEN 1 ELSE 0 END) AS low_gdp_count,
+AVG(CASE WHEN GDP <= 1500 THEN `Life expectancy` ELSE NULL END) AS low_GDP_life_exp
+FROM world_life_expectancy; 
+
+# Looking at a correlation between status and avg life expectancy
+SELECT Status, ROUND(AVG(`Life expectancy`),1) 
+FROM world_life_expectancy
+GROUP BY Status; 
+
+# Looking at how many developed and developing countries
+SELECT Status, COUNT(DISTINCT Country)
+FROM world_life_expectancy
+GROUP BY Status;
+
+
+# Comparing the BMI with each country
+SELECT Country, ROUND(AVG(`Life expectancy`),1) AS life_exp, ROUND(AVG(BMI),1) AS BMI
+FROM world_life_expectancy
+GROUP BY Country
+HAVING life_exp > 0 AND BMI > 0
+ORDER BY BMI DESC; 
+
+# See how many people died in each year in a country and compare it to life expectancy... using rolling total
+SELECT Country, 
+Year, 
+`Life expectancy`, 
+`Adult Mortality`,
+SUM(`Adult Mortality`) OVER(PARTITION BY Country ORDER BY Year) as rolling_total
+FROM world_life_expectancy
+WHERE Country LIKE '%United%'
+; 
