@@ -1,0 +1,79 @@
+# US Household Income Data Cleaning
+
+SELECT * FROM us_project.us_household_income;
+
+SELECT * FROM us_project.us_household_income_statistics;
+
+# Fix id column
+ALTER TABLE us_project.us_household_income_statistics
+RENAME COLUMN `ï»¿id` TO `id`;
+
+# Count of IDs
+SELECT COUNT(id) 
+FROM us_project.us_household_income;
+
+# Count of IDs
+SELECT COUNT(id) 
+FROM us_project.us_household_income_statistics;
+
+# Find duplicates
+SELECT id, COUNT(id) 
+FROM us_project.us_household_income
+GROUP BY id
+HAVING COUNT(id) > 1;
+
+# After finding duplicate ids, find row id to remove them
+SELECT row_id
+FROM (
+	SELECT row_id,
+	id,
+	ROW_NUMBER() OVER(PARTITION BY id ORDER BY id) as row_num
+	FROM us_project.us_household_income) as duplicates
+WHERE row_num > 1
+;
+
+# Delete duplicate row_ids
+DELETE FROM us_project.us_household_income
+WHERE row_id IN (SELECT row_id
+	FROM (
+		SELECT row_id,
+		id,
+		ROW_NUMBER() OVER(PARTITION BY id ORDER BY id) as row_num
+		FROM us_project.us_household_income) as duplicates
+	WHERE row_num > 1
+);
+
+# Standarize state names
+SELECT State_Name
+FROM us_project.us_household_income;
+
+# georia is spelled wrong... update to correct spelling
+UPDATE us_project.us_household_income
+SET State_Name = 'Georgia'
+WHERE State_Name = 'georia';
+
+# The a in alabama needs to be capitalized
+UPDATE us_project.us_household_income
+SET State_Name = 'Alabama'
+WHERE State_Name = 'alabama';
+
+# Looking at blank values in the Place column
+SELECT *
+FROM us_project.us_household_income
+WHERE Place = '';
+
+# Update blank cell in the Place column
+UPDATE us_project.us_household_income
+SET Place = 'Autaugaville'
+WHERE County = 'Autauga County'
+AND City = 'Vinemont';
+
+# Standarize Type column
+SELECT Type, COUNT(Type)
+FROM us_project.us_household_income
+GROUP BY Type;
+
+# Update Boroughs to Borough
+UPDATE us_project.us_household_income
+SET Type = 'Borough'
+WHERE Type = 'Boroughs';
